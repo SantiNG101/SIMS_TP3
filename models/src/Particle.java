@@ -18,9 +18,7 @@ public class Particle {
     }
 
     public double timeToHit(Particle other) {
-        if (this == other) {
-            return Double.POSITIVE_INFINITY;
-        }
+        if (this == other) return Double.POSITIVE_INFINITY;
 
         double dx = other.x - this.x;
         double dy = other.y - this.y;
@@ -28,63 +26,106 @@ public class Particle {
         double dvy = other.vy - this.vy;
 
         double dvdr = dvx * dx + dvy * dy;
-        if (dvdr > 0) {
-            return Double.POSITIVE_INFINITY;
-        }
+        if (dvdr > 0) return Double.POSITIVE_INFINITY;
 
         double dvdv = dvx * dvx + dvy * dvy;
+        if (dvdv == 0) return Double.POSITIVE_INFINITY;
+
         double drdr = dx * dx + dy * dy;
         double sigma = this.radius + other.radius;
 
         double d = (dvdr * dvdr) - dvdv * (drdr - sigma * sigma);
-        if (d < 0) {
-            return Double.POSITIVE_INFINITY;
-        }
+        if (d < 0) return Double.POSITIVE_INFINITY;
 
-        return -(dvdr + Math.sqrt(d)) / dvdv;
+        double t = -(dvdr + Math.sqrt(d)) / dvdv;
+        return t > 0 ? t : Double.POSITIVE_INFINITY;
     }
 
-    public double timeToHitVerticalWall(double wallX, double boxWidth) {
-        if (vx > 0) return (boxWidth - radius - x) / vx;
-        if (vx < 0) return (radius - x) / vx;
+    public double timeToHitVerticalWall(double xMin, double xMax) {
+        if (vx > 0) return (xMax - radius - x) / vx;
+        if (vx < 0) return (xMin + radius - x) / vx;
         return Double.POSITIVE_INFINITY;
     }
 
-    public double timeToHitHorizontalWall(double wallY, double boxHeight) {
-        if (vy > 0) return (boxHeight - radius - y) / vy;
-        if (vy < 0) return (radius - y) / vy;
+    public double timeToHitHorizontalWall(double yMin, double yMax) {
+        if (vy > 0) return (yMax - radius - y) / vy;
+        if (vy < 0) return (yMin + radius - y) / vy;
         return Double.POSITIVE_INFINITY;
     }
 
-    public void bounceOff(Particle other){
+    public double timeToHitPoint(double px, double py) {
+        double dx = px - this.x;
+        double dy = py - this.y;
+        double dvx = this.vx;
+        double dvy = this.vy;
+
+        double dvdr = dx * dvx + dy * dvy;
+        if (dvdr <= 0) return Double.POSITIVE_INFINITY;
+
+        double dvdv = dvx * dvx + dvy * dvy;
+        if (dvdv == 0) return Double.POSITIVE_INFINITY;
+
+        double drdr = dx * dx + dy * dy;
+        double sigma = this.radius;
+
+        double d = (dvdr * dvdr) - dvdv * (drdr - sigma * sigma);
+        if (d < 0) return Double.POSITIVE_INFINITY;
+
+        double t = -(dvdr + Math.sqrt(d)) / dvdv;
+        return t > 0 ? t : Double.POSITIVE_INFINITY;
+    }
+
+    public void bounceOff(Particle other) {
         double dx = other.x - this.x;
         double dy = other.y - this.y;
         double dvx = other.vx - this.vx;
         double dvy = other.vy - this.vy;
 
-        double dvdr = dvx * dx + dvy * dy;
+        double dvdr = dx * dvx + dy * dvy;
         double dist = this.radius + other.radius;
 
         double impulse = (2 * this.mass * other.mass * dvdr) / ((this.mass + other.mass) * dist);
-        double jx = impulse * dx / dist;
-        double jy = impulse * dy / dist;
+        double Jx = impulse * dx / dist;
+        double Jy = impulse * dy / dist;
 
-        this.vx += jx / this.mass;
-        this.vy += jy / this.mass;
-        other.vx -= jx / other.mass;
-        other.vy -= jy / other.mass;
+        this.vx += Jx / this.mass;
+        this.vy += Jy / this.mass;
+        other.vx -= Jx / other.mass;
+        other.vy -= Jy / other.mass;
 
         this.collisionCount++;
         other.collisionCount++;
     }
 
-    public void bounceOffVerticalWall(){
+    public void bounceOffVerticalWall() {
         this.vx = -this.vx;
         this.collisionCount++;
     }
 
-    public void bounceOffHorizontalWall(){
+    public void bounceOffHorizontalWall() {
         this.vy = -this.vy;
         this.collisionCount++;
     }
+
+    public void bounceOffPoint(double px, double py, double EPS) {
+        double dx = this.x - px;
+        double dy = this.y - py;
+        double dist = Math.sqrt(dx*dx + dy*dy);
+
+        if (dist < EPS) return; // ignorar rebotes demasiado cercanos
+
+        double nx = dx / dist;
+        double ny = dy / dist;
+
+        double vdotn = vx * nx + vy * ny;
+
+        vx -= 2 * vdotn * nx;
+        vy -= 2 * vdotn * ny;
+
+        collisionCount++;
+    }
+
 }
+
+
+
