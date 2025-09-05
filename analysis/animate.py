@@ -2,7 +2,7 @@ import matplotlib.pyplot as plt
 import matplotlib.animation as animation
 import numpy as np
 
-def animate_simulation(filepath="C:/Users/Santi/Documents/ITBA/4to Año/2do Cuatrimestre/Sims/SIMS_TP3/simulation_output.txt"):
+def animate_simulation(filepath="/Users/agustinasanguinetti/Desktop/Facu/sims/SIMS_TP3/simulation_output.txt"):
     """
     Analiza los datos de la simulación y crea una animación en Matplotlib.
     """

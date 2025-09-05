@@ -6,7 +6,7 @@ import java.util.Random;
 public class Main {
     public static void main(String[] args) throws IOException {
         // --- Simulation Parameters ---
-        int N = 200;                  // Número de partículas
+        int N = 150;                  // Número de partículas
         double L_CHANNEL = 0.05;      // Altura del "canal" o de la caja derecha (variable)
         double RADIUS = 0.0015;       // Radio de la partícula
         double MASS = 1.0;            // Masa de la partícula
@@ -49,6 +49,6 @@ public class Main {
         // --- Ejecutar Simulación ---
         Collisions system = new Collisions(particles, L_CHANNEL);
         // Simular por 50 segundos, guardando el estado cada 0.1 segundos
-        system.simulate(30.0, 0.1);
+        system.simulate(100.0, 0.1);
     }
 }
