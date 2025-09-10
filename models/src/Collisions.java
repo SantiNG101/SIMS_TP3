@@ -49,6 +49,7 @@ public class Collisions {
                     willPassToRight = true;
                 } else {
                     if (t > 1e-12) pq.add(new Event(simTime + t, p, null));
+                    else pq.add(new Event(simTime + 1e-12, p, null));
                 }
             } else { // Caja derecha
                 double t = (BOX1_W + BOX2_W - p.radius - p.x) / p.vx;
@@ -57,7 +58,6 @@ public class Collisions {
         } else if (p.vx < 0) {
             double t = (0 + p.radius - p.x) / p.vx;
             if (t > 1e-12) pq.add(new Event(simTime + t, p, null));
-
         }
 
         // 3️⃣ Colisiones con paredes horizontales
@@ -77,7 +77,7 @@ public class Collisions {
         }
 
         // 4️⃣ Colisiones con esquinas (solo si se dirige hacia ellas)
-        if (p.vx > 0 && (p.y < openingYMin || p.y > openingYMax)) {
+        if (p.vx > 0 && (p.y - p.radius< openingYMin || p.y + p.radius > openingYMax)) {
             double cornerY = (p.y < openingYMin) ? openingYMin : openingYMax;
             double tCorner = p.timeToHitPoint(BOX1_W, cornerY);
             if (tCorner > 1e-12) pq.add(new Event(simTime + tCorner, p, null));
