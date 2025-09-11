@@ -95,7 +95,7 @@ public class Collisions {
         pq.add(new Event(0, null, null)); // evento para estado inicial
         double nextOutputTime = 0;
 
-        try (FileWriter writer = new FileWriter("simulation_output.txt")) {
+        try (FileWriter writer = new FileWriter("simulation_output" + "_L_" + L + "_.txt")) {
             writer.write(String.format("%d %.6f\n", particles.size(), particles.get(0).radius));
             writer.write(String.format("%.6f %.6f %.6f %.6f\n", L, BOX1_W, BOX2_W, BOX1_H));
 
