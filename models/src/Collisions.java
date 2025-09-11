@@ -1,6 +1,7 @@
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.List;
+import java.util.Locale;
 import java.util.PriorityQueue;
 
 public class Collisions {
@@ -96,8 +97,8 @@ public class Collisions {
         double nextOutputTime = 0;
 
         try (FileWriter writer = new FileWriter("simulation_output" + "_L_" + L + "_.txt")) {
-            writer.write(String.format("%d %.6f\n", particles.size(), particles.get(0).radius));
-            writer.write(String.format("%.6f %.6f %.6f %.6f\n", L, BOX1_W, BOX2_W, BOX1_H));
+            writer.write(String.format(Locale.US,"%d %.6f\n", particles.size(), particles.get(0).radius));
+            writer.write(String.format(Locale.US,"%.6f %.6f %.6f %.6f\n", L, BOX1_W, BOX2_W, BOX1_H));
 
             while (!pq.isEmpty()) {
                 Event event = pq.poll();
@@ -110,9 +111,9 @@ public class Collisions {
                 simTime = event.time;
 
                 if (simTime + 1e-12 >= nextOutputTime) {
-                    writer.write(String.format("%.6f\n", simTime));
+                    writer.write(String.format(Locale.US,"%.6f\n", simTime));
                     for (Particle p : particles) {
-                        writer.write(String.format("%.6f %.6f %.6f %.6f\n", p.x, p.y, p.vx, p.vy));
+                        writer.write(String.format(Locale.US,"%.6f %.6f %.6f %.6f\n", p.x, p.y, p.vx, p.vy));
                     }
                     nextOutputTime += outputInterval;
                 }
