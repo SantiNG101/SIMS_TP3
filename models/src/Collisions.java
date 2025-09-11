@@ -64,7 +64,7 @@ public class Collisions {
 
         // 3️⃣ Colisiones con paredes horizontales
         double yMin, yMax;
-        if (p.x < BOX1_W && !willPassToRight) {
+        if (p.x <= BOX1_W && !willPassToRight) {
             yMin = 0.0; yMax = BOX1_H;
         } else {
             yMin = openingYMin; yMax = openingYMax;
