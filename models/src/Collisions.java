@@ -47,6 +47,8 @@ public class Collisions {
 
                 if (yAtCollision + p.radius <= openingYMax && yAtCollision - p.radius >= openingYMin) {
                     willPassToRight = true;
+                     t = (BOX1_W + BOX2_W - p.radius - p.x) / p.vx;
+                    if (t > 1e-12) pq.add(new Event(simTime + t, p, null));
                 } else {
                     if (t > 1e-12) pq.add(new Event(simTime + t, p, null));
                     else pq.add(new Event(simTime + 1e-12, p, null));
