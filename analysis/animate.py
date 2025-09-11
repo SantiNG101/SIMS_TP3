@@ -1,11 +1,16 @@
+import os
+
 import matplotlib.pyplot as plt
 import matplotlib.animation as animation
 import numpy as np
 
-def animate_simulation(filepath="/Users/agustinasanguinetti/Desktop/Facu/sims/SIMS_TP3/simulation_output.txt"):
+def animate_simulation(filename="simulation_output_L_0.03_.txt"):
     """
     Analiza los datos de la simulación y crea una animación en Matplotlib.
     """
+    base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    filepath = os.path.join(base_dir, filename)
+
     with open(filepath, 'r') as f:
         # --- Leer cabecera ---
         num_particles, radius = map(float, f.readline().split())
@@ -87,7 +92,7 @@ def animate_simulation(filepath="/Users/agustinasanguinetti/Desktop/Facu/sims/SI
     )
 
     print("Guardando animación como GIF... Esto puede tardar un momento. ✨")
-    ani.save('simulation_L_0.05_.gif', writer='pillow', fps=30)
+    ani.save('simulation_L_0.03_.gif', writer='pillow', fps=30)
     print("Animación guardada exitosamente como 'simulation_L_0.05_.gif'!")
 
 
