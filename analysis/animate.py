@@ -4,25 +4,37 @@ import matplotlib.pyplot as plt
 import matplotlib.animation as animation
 import numpy as np
 
-def animate_simulation(filename="simulation_output_L_0.03_.txt"):
+def animate_simulation(L_value):
     """
     Analiza los datos de la simulación y crea una animación en Matplotlib.
     """
     base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-    filepath = os.path.join(base_dir, filename)
+    sim_folder = os.path.join(base_dir, "outputs", f"sim_L_{L_value:.2f}")
 
-    with open(filepath, 'r') as f:
-        # --- Leer cabecera ---
-        num_particles, radius = map(float, f.readline().split())
+    output_file = os.path.join(sim_folder, "output.txt")
+    params_file = os.path.join(sim_folder, "params.txt")
+    gif_file = os.path.join(sim_folder, f"animation.gif")
+
+    if not os.path.exists(output_file):
+        print(f"No se encontró el archivo de salida en {output_file}")
+        return
+    if not os.path.exists(params_file):
+        print(f"No se encontró el archivo de parámetros en {params_file}")
+        return
+
+    # --- Leer parámetros ---
+    with open(params_file, 'r') as f:
+        lines = [line for line in f.readlines() if not line.startswith("#")]
+        L_CHANNEL, num_particles, radius, BOX1_WIDTH, BOX2_WIDTH, BOX1_HEIGHT = map(float, lines[0].split())
         num_particles = int(num_particles)
-        L_CHANNEL, BOX1_WIDTH, BOX2_WIDTH, BOX1_HEIGHT = map(float, f.readline().split())
 
-        # --- Leer frames ---
-        frames = []
+    # --- Leer frames ---
+    frames = []
+    with open(output_file, 'r') as f:
         content = f.read().strip().split("\n")
         i = 0
         while i < len(content):
-            if not content[i].strip():
+            if not content[i].strip() or content[i].startswith("#"):
                 i += 1
                 continue
             # línea del tiempo (no la usamos, pero la salteamos)
@@ -92,9 +104,9 @@ def animate_simulation(filename="simulation_output_L_0.03_.txt"):
     )
 
     print("Guardando animación como GIF... Esto puede tardar un momento. ✨")
-    ani.save('simulation_L_0.03_.gif', writer='pillow', fps=30)
-    print("Animación guardada exitosamente como 'simulation_L_0.05_.gif'!")
+    ani.save(gif_file, writer='pillow', fps=30)
+    print(f"Animación guardada exitosamente como 'animation_L_{L_value}.gif'!")
 
 
 if __name__ == '__main__':
-    animate_simulation()
+    animate_simulation(0.03)
