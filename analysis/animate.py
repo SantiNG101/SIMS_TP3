@@ -3,8 +3,10 @@ import os
 import matplotlib.pyplot as plt
 import matplotlib.animation as animation
 import numpy as np
+import imageio_ffmpeg as ffmp
+import matplotlib as mpl
 
-def animate_simulation(filename="simulation_output_L_0.03_.txt"):
+def animate_simulation(filename="simulation_output_L_0.05_.txt"):
     """
     Analiza los datos de la simulación y crea una animación en Matplotlib.
     """
@@ -91,9 +93,12 @@ def animate_simulation(filename="simulation_output_L_0.03_.txt"):
         blit=True, interval=30, repeat=False
     )
 
+
     print("Guardando animación como GIF... Esto puede tardar un momento. ✨")
-    ani.save('simulation_L_0.03_.gif', writer='pillow', fps=30)
-    print("Animación guardada exitosamente como 'simulation_L_0.05_.gif'!")
+    mpl.rcParams["animation.ffmpeg_path"] = ffmp.get_ffmpeg_exe()
+    ani.save('simulation_L_0.03_.mp4', writer='ffmpeg', fps=30)
+#    ani.save('simulation_L_0.03_.gif', writer='pillow', fps=30)
+    print("Animación guardada exitosamente como 'simulation_L_0.03_.gif'!")
 
 
 if __name__ == '__main__':

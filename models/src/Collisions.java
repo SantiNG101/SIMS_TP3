@@ -38,14 +38,15 @@ public class Collisions {
                 pq.add(new Event(simTime + dt, p, other));
             }
         }
+
         boolean willPassToRight = false;
         // 2️⃣ Colisiones con paredes verticales
         if (p.vx > 0) {
             if (p.x < BOX1_W) { // Caja izquierda
                 double t = (BOX1_W - p.radius - p.x) / p.vx;
-                double yAtCollision = p.y + p.vy * t;
+                double yAtCollision = t>=0? (p.y + p.vy * t) : p.y ;
 
-                if (yAtCollision + p.radius <= openingYMax && yAtCollision - p.radius >= openingYMin) {
+                if ( yAtCollision + p.radius <= openingYMax && yAtCollision - p.radius >= openingYMin) {
                     willPassToRight = true;
                      t = (BOX1_W + BOX2_W - p.radius - p.x) / p.vx;
                     if (t > 1e-12) pq.add(new Event(simTime + t, p, null));
@@ -64,7 +65,7 @@ public class Collisions {
 
         // 3️⃣ Colisiones con paredes horizontales
         double yMin, yMax;
-        if (p.x <= BOX1_W && !willPassToRight) {
+        if (p.x < BOX1_W && !willPassToRight) {
             yMin = 0.0; yMax = BOX1_H;
         } else {
             yMin = openingYMin; yMax = openingYMax;
