@@ -1,6 +1,8 @@
+import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.List;
+import java.util.Locale;
 import java.util.PriorityQueue;
 
 public class Collisions {
@@ -96,9 +98,24 @@ public class Collisions {
         pq.add(new Event(0, null, null)); // evento para estado inicial
         double nextOutputTime = 0;
 
-        try (FileWriter writer = new FileWriter("simulation_output" + "_L_" + L + "_.txt")) {
-            writer.write(String.format("%d %.6f\n", particles.size(), particles.get(0).radius));
-            writer.write(String.format("%.6f %.6f %.6f %.6f\n", L, BOX1_W, BOX2_W, BOX1_H));
+        String simPath = String.format(Locale.US, "outputs/sim_L_%.2f", L);
+        File folder = new File(simPath);
+        if (!folder.exists()) {
+            folder.mkdirs(); // crea la carpeta si no existe
+        }
+
+        try (
+            FileWriter paramsWriter = new FileWriter(simPath + "/params.txt");
+            FileWriter outputWriter = new FileWriter(simPath + "/output.txt")
+            ) {
+            paramsWriter.write("# L, N, radius, BOX1_W, BOX2_W, BOX1_H\n");
+            paramsWriter.write(String.format(
+                Locale.US,
+                "%.6f %d %.6f %.6f %.6f %.6f\n",
+                L, particles.size(), particles.get(0).radius, BOX1_W, BOX2_W, BOX1_H
+            ));
+            outputWriter.write("# t\n");
+            outputWriter.write("# x y vx vy\n");
 
             while (!pq.isEmpty()) {
                 Event event = pq.poll();
@@ -111,9 +128,9 @@ public class Collisions {
                 simTime = event.time;
 
                 if (simTime + 1e-12 >= nextOutputTime) {
-                    writer.write(String.format("%.6f\n", simTime));
+                    outputWriter.write(String.format(Locale.US,"%.6f\n", simTime));
                     for (Particle p : particles) {
-                        writer.write(String.format("%.6f %.6f %.6f %.6f\n", p.x, p.y, p.vx, p.vy));
+                        outputWriter.write(String.format(Locale.US,"%.6f %.6f %.6f %.6f\n", p.x, p.y, p.vx, p.vy));
                     }
                     nextOutputTime += outputInterval;
                 }
