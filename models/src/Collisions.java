@@ -13,6 +13,9 @@ public class Collisions {
     private final double BOX1_W = 0.09;
     private final double BOX1_H = 0.09;
     private final double BOX2_W = 0.09;
+
+    private final int BOX1_ID = 1;
+    private final int BOX2_ID = 2;
     private final double L; // Altura del canal / caja derecha
 
     private final double openingYMin;
@@ -153,6 +156,7 @@ public class Collisions {
                     if (isCorner(a)) {
                         double cornerY = (aNearBottomCorner(a)) ? openingYMin : openingYMax;
                         a.bounceOffPoint(BOX1_W, cornerY, EPS);
+                        bounceWallWriter.write(String.format(Locale.US,"%d %.6f %.6f %.6f\n", BOX1_ID, simTime, a.vx, a.vy));
                     } else {
                         a.bounceOffVerticalWall();
                         bounceWallWriter.write(String.format(Locale.US,"%d %.6f %.6f %.6f\n", getBoxId(a), simTime, a.vx, a.vy));
@@ -171,7 +175,7 @@ public class Collisions {
     }
 
     private int getBoxId(Particle p) {
-        return (p.x < BOX1_W) ? 1 : 2;
+        return (p.x < BOX1_W) ? BOX1_ID : BOX2_ID;
     }
     private boolean isCorner(Particle p) {
         return Math.abs(p.x - BOX1_W) < 1e-6 &&
