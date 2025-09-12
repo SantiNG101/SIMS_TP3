@@ -106,7 +106,8 @@ public class Collisions {
 
         try (
             FileWriter paramsWriter = new FileWriter(simPath + "/params.txt");
-            FileWriter outputWriter = new FileWriter(simPath + "/output.txt")
+            FileWriter outputWriter = new FileWriter(simPath + "/output.txt");
+            FileWriter bounceWallWriter = new FileWriter(simPath + "/bounce_wall_output.txt");
             ) {
             paramsWriter.write("# L, N, radius, BOX1_W, BOX2_W, BOX1_H\n");
             paramsWriter.write(String.format(
@@ -116,6 +117,7 @@ public class Collisions {
             ));
             outputWriter.write("# t\n");
             outputWriter.write("# x y vx vy\n");
+            bounceWallWriter.write("# box_id t vx vy\n");
 
             int countEvents = 0;
 
@@ -153,9 +155,11 @@ public class Collisions {
                         a.bounceOffPoint(BOX1_W, cornerY, EPS);
                     } else {
                         a.bounceOffVerticalWall();
+                        bounceWallWriter.write(String.format(Locale.US,"%d %.6f %.6f %.6f\n", getBoxId(a), simTime, a.vx, a.vy));
                     }
                 } else if (a == null && b != null) {
                     b.bounceOffHorizontalWall();
+                    bounceWallWriter.write(String.format(Locale.US,"%d %.6f %.6f %.6f\n", getBoxId(b), simTime, b.vx, b.vy));
                 }
 
                 predict(a);
@@ -166,6 +170,9 @@ public class Collisions {
         System.out.println("Simulation finished.");
     }
 
+    private int getBoxId(Particle p) {
+        return (p.x < BOX1_W) ? 1 : 2;
+    }
     private boolean isCorner(Particle p) {
         return Math.abs(p.x - BOX1_W) < 1e-6 &&
                 (Math.abs(p.y - openingYMin) < 1e-6 || Math.abs(p.y - openingYMax) < 1e-6);
