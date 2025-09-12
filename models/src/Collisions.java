@@ -131,7 +131,8 @@ public class Collisions {
                 simTime = event.time;
 
 
-                if ( countEvents % nEventsPerPrint == 0 &&  simTime + 1e-12 >= nextOutputTime) {
+                if ( countEvents % nEventsPerPrint == 0 ) {
+                    System.out.println(countEvents);
                     outputWriter.write(String.format(Locale.US,"%.6f\n", simTime));
                     for (Particle p : particles) {
                         outputWriter.write(String.format(Locale.US,"%.6f %.6f %.6f %.6f\n", p.x, p.y, p.vx, p.vy));

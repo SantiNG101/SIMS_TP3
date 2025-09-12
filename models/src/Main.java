@@ -49,6 +49,6 @@ public class Main {
         // --- Ejecutar Simulación ---
         Collisions system = new Collisions(particles, L_CHANNEL);
         // Simular por 50 segundos, guardando el estado cada 0.1 segundos
-        system.simulate(100.0, 0.1, 20);
+        system.simulate(100.0, 0.1, 100);
     }
 }
