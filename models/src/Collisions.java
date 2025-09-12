@@ -91,7 +91,7 @@ public class Collisions {
 
 
 
-    public void simulate(double maxTime, double outputInterval) throws IOException {
+    public void simulate(double maxTime, double outputInterval, int nEventsPerPrint) throws IOException {
         for (Particle p : particles) {
             predict(p);
         }
@@ -117,17 +117,21 @@ public class Collisions {
             outputWriter.write("# t\n");
             outputWriter.write("# x y vx vy\n");
 
+            int countEvents = 0;
+
             while (!pq.isEmpty()) {
                 Event event = pq.poll();
                 if (!event.isValid()) continue;
                 if (event.time < simTime - 1e-12) continue; // evento en el pasado (por seguridad)
 
+                countEvents++;
                 for (Particle p : particles) {
                     p.move(event.time - simTime);
                 }
                 simTime = event.time;
 
-                if (simTime + 1e-12 >= nextOutputTime) {
+
+                if ( countEvents % nEventsPerPrint == 0 &&  simTime + 1e-12 >= nextOutputTime) {
                     outputWriter.write(String.format(Locale.US,"%.6f\n", simTime));
                     for (Particle p : particles) {
                         outputWriter.write(String.format(Locale.US,"%.6f %.6f %.6f %.6f\n", p.x, p.y, p.vx, p.vy));
