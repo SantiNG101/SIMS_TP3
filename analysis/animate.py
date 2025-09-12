@@ -112,4 +112,4 @@ def animate_simulation(L_value):
 
 
 if __name__ == '__main__':
-    animate_simulation(0.03)
+    animate_simulation(0.05)
