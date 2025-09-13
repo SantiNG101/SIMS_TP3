@@ -35,12 +35,15 @@ def plot_pressure_vs_area(A_list, P_avg_list, P_std_list, inverse=False, fontsiz
 
     plt.figure(figsize=(8,6))
     plt.plot(A_list, P_avg_list, "o-")
-    plt.xlabel("Área total A⁻¹ (1/m²)" if inverse else "Área total A (m²)", fontsize=fontsize)
+    plt.xlabel("Inverso del Área Total A⁻¹ (1/m²)" if inverse else "Área total A (m²)", fontsize=fontsize)
     plt.ylabel("Presión promedio (Pa)", fontsize=fontsize)
     plt.ylim(0, 2)
     plt.grid(True)
 
-    xtick_labels = [f"{A:.3f}\n(L={L:.2f})" for A, L in zip(A_list, L_values)]
+    if inverse:
+        xtick_labels = [f"{A:.1f}\n(L={L:.2f})" for A, L in zip(A_list, L_values)]
+    else:
+        xtick_labels = [f"{A:.3f}\n(L={L:.2f})" for A, L in zip(A_list, L_values)]
     plt.xticks(A_list, xtick_labels, fontsize=fontsize-1)    
     plt.yticks(fontsize=fontsize)
 
@@ -86,10 +89,11 @@ def plot_pressure_fit_vs_inverse_area(A_list, P_avg_list, fontsize=12):
     plt.figure(figsize=(8,6))
     plt.plot(A_inv, P_avg_list, 'o')
     plt.plot(A_inv, k*A_inv + b, '-')
-    plt.xlabel("1 / A (1/m²)", fontsize=fontsize)
+    plt.xlabel("Inverso del Área Total A⁻¹ (1/m²)", fontsize=fontsize)
     plt.ylabel("P (Pa)", fontsize=fontsize)
     plt.xticks(fontsize=fontsize)    
     plt.yticks(fontsize=fontsize)
+    plt.ylim(0, 2)
     plt.grid(True)
 
     base_path = load_outputs_base_path()
