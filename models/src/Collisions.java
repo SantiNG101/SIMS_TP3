@@ -121,7 +121,7 @@ public class Collisions {
             ));
             outputWriter.write("# t\n");
             outputWriter.write("# x y vx vy\n");
-            bounceWallWriter.write("# box_id t vx vy\n");
+            bounceWallWriter.write("# box_id t vx vy wall\n");
 
             int countEvents = 0;
 
@@ -155,14 +155,14 @@ public class Collisions {
                     if (isCorner(a)) {
                         double cornerY = (aNearBottomCorner(a)) ? openingYMin : openingYMax;
                         a.bounceOffPoint(BOX1_W, cornerY, EPS);
-                        bounceWallWriter.write(String.format(Locale.US,"%d %.6f %.6f %.6f\n", BOX1_ID, simTime, a.vx, a.vy));
+                        bounceWallWriter.write(String.format(Locale.US,"%d %.6f %.6f %.6f %s\n", BOX1_ID, simTime, a.vx, a.vy, 'C'));
                     } else {
                         a.bounceOffVerticalWall();
-                        bounceWallWriter.write(String.format(Locale.US,"%d %.6f %.6f %.6f\n", getBoxId(a), simTime, a.vx, a.vy));
+                        bounceWallWriter.write(String.format(Locale.US,"%d %.6f %.6f %.6f %s\n", getBoxId(a), simTime, a.vx, a.vy, 'V'));
                     }
                 } else if (a == null && b != null) {
                     b.bounceOffHorizontalWall();
-                    bounceWallWriter.write(String.format(Locale.US,"%d %.6f %.6f %.6f\n", getBoxId(b), simTime, b.vx, b.vy));
+                    bounceWallWriter.write(String.format(Locale.US,"%d %.6f %.6f %.6f %s\n", getBoxId(b), simTime, b.vx, b.vy, 'H'));
                 }
 
                 predict(a);
