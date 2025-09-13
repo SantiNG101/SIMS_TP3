@@ -122,6 +122,7 @@ public class Collisions {
             FileWriter paramsWriter = new FileWriter(simPath + "/params.txt");
             FileWriter outputWriter = new FileWriter(simPath + "/output.txt");
             FileWriter bounceWallWriter = new FileWriter(simPath + "/bounce_wall_output.txt");
+            FileWriter stationaryWriter = new FileWriter(simPath + "/stationary.txt");
             ) {
             paramsWriter.write("# L, N, radius, BOX1_W, BOX2_W, BOX1_H\n");
             paramsWriter.write(String.format(
@@ -132,6 +133,7 @@ public class Collisions {
             outputWriter.write("# t\n");
             outputWriter.write("# x y vx vy\n");
             bounceWallWriter.write("# box_id t vx vy wall\n");
+            stationaryWriter.write("# init_stationary_t\n");
 
             int countEvents = 0;
 

@@ -1,10 +1,11 @@
 import numpy as np
-import os
-import matplotlib.pyplot as plt
-from utils import load_params, load_collisions
+from utils import load_params, load_collisions, load_stationary_time
 
 
-def compute_pressure(box_id, t, vx, vy, wall, params, dt=2.0):
+def compute_pressure(L, dt=2.0):
+
+    params = load_params(L)
+    box_id, t, vx, vy, wall = load_collisions(L)
 
     perimeters = {
         1: 2 * params["BOX1_H"] + params["BOX1_W"],
@@ -39,37 +40,16 @@ def compute_pressure(box_id, t, vx, vy, wall, params, dt=2.0):
     return bins[:-1], pressures
 
 
-def plot_pressure(times, pressures, base_path, fontsize=12):
-    plt.figure(figsize=(10,5))
-    for b in pressures:
-        if b == 1: label = "Caja izquierda"
-        else: label = "Caja derecha"
-        plt.plot(times, pressures[b], label=label)
-    plt.xlabel("Tiempo [s]", fontsize=fontsize)
-    plt.ylabel("Presión [Pa]", fontsize=fontsize)
-    plt.xticks(fontsize=fontsize)
-    plt.yticks(fontsize=fontsize)
-    plt.legend(fontsize=fontsize)
-    plt.legend(fontsize=fontsize)
-    plt.grid(True)
-    save_path = os.path.join(base_path, f"presion_vs_t.png")
-    plt.savefig(save_path, dpi=300)
-    print(f"Gráfico guardado en: {save_path}")
+# Calcula la presión promedio estacionaria de ambas cajas (promedio de P_left y P_right).
+def compute_stationary_mean_pressure(L, dt=2.0):
+    t_stationary = load_stationary_time(L)
+    times, pressures = compute_pressure(L, dt)
 
+    mask = times >= t_stationary
 
+    P_left = np.mean(pressures[1][mask])
+    P_right = np.mean(pressures[2][mask])
+    P_avg = 0.5 * (P_left + P_right)
 
+    return P_left, P_right, P_avg
 
-if __name__ == "__main__":
-    
-    L = 0.09
-
-    script_dir = os.path.dirname(os.path.abspath(__file__))
-    base_path = os.path.join(script_dir, "..", "outputs", f"sim_L_{L}")
-    base_path = os.path.abspath(base_path) 
-
-    params = load_params(os.path.join(base_path, "params.txt"))
-    box_id, t, vx, vy, wall = load_collisions(os.path.join(base_path, "bounce_wall_output.txt"))
-
-    times, pressures = compute_pressure(box_id, t, vx, vy, wall, params)
-
-    plot_pressure(times, pressures, base_path, fontsize=12)
