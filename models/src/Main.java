@@ -18,7 +18,7 @@ public class Main {
 
         // --- Crear Partículas ---
         List<Particle> particles = new ArrayList<>();
-        Random rand = new Random();
+        Random rand = new Random(2);
 
         for (int i = 0; i < N; i++) {
             double x, y;
@@ -48,7 +48,7 @@ public class Main {
 
         // --- Ejecutar Simulación ---
         Collisions system = new Collisions(particles, L_CHANNEL);
-        // Simular por 50 segundos, guardando el estado cada 0.1 segundos
+
         system.simulate(100.0,1);
     }
 }
