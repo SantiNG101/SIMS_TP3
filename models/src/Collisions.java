@@ -1,6 +1,7 @@
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import java.util.PriorityQueue;
@@ -9,6 +10,7 @@ public class Collisions {
     private PriorityQueue<Event> pq;
     private double simTime;
     private final List<Particle> particles;
+    private final List<Particle> cornerParticles;
 
     private final double BOX1_W = 0.09;
     private final double BOX1_H = 0.09;
@@ -31,6 +33,12 @@ public class Collisions {
 
         this.openingYMin = (BOX1_H - L) / 2.0;
         this.openingYMax = openingYMin + L;
+
+        this.cornerParticles = new ArrayList<>();
+        final Particle upCorner = new Particle(BOX1_W,openingYMax,0,0,EPS,0);
+        final Particle downCorner = new Particle(BOX1_W,openingYMin,0,0,EPS,0);
+        cornerParticles.add(upCorner);
+        cornerParticles.add(downCorner);
     }
 
     private void predict(Particle p) {
@@ -85,11 +93,14 @@ public class Collisions {
         }
 
         // 4️⃣ Colisiones con esquinas (solo si se dirige hacia ellas)
-        if (p.vx > 0 && (p.y - p.radius< openingYMin || p.y + p.radius > openingYMax)) {
-            double cornerY = (p.y < openingYMin) ? openingYMin : openingYMax;
-            double tCorner = p.timeToHitPoint(BOX1_W, cornerY);
-            if (tCorner > 1e-12) pq.add(new Event(simTime + tCorner, p, null));
+        for (Particle cornerParticle : cornerParticles) {
+            double dt = p.timeToHit(cornerParticle);
+            if (dt > 1e-12 && simTime + dt < Double.POSITIVE_INFINITY) {
+                pq.add(new Event(simTime + dt, p, cornerParticle));
+            }
         }
+
+
     }
 
 
@@ -100,7 +111,6 @@ public class Collisions {
             predict(p);
         }
         pq.add(new Event(0, null, null)); // evento para estado inicial
-        double nextOutputTime = 0;
 
         String simPath = String.format(Locale.US, "outputs/sim_L_%.2f", L);
         File folder = new File(simPath);
@@ -136,9 +146,10 @@ public class Collisions {
                 }
                 simTime = event.time;
 
-                if ( countEvents % nEventsPerPrint == 0 ) {
+                if ( countEvents % nEventsPerPrint == 0 && (pq.isEmpty() || pq.peek().time > simTime) ) {
+                    outputWriter.write(String.format(Locale.US,"%.6f\n", simTime));
                     for (Particle p : particles) {
-                        outputWriter.write(String.format(Locale.US,"%.6f %.6f %.6f %.6f %.6f\n", simTime, p.x, p.y, p.vx, p.vy));
+                        outputWriter.write(String.format(Locale.US,"%.6f %.6f %.6f %.6f\n", p.x, p.y, p.vx, p.vy));
                     }
                 }
 
@@ -149,24 +160,23 @@ public class Collisions {
                 Particle b = event.b;
 
                 if (a != null && b != null) {
-                    a.bounceOff(b);
+                    if ( isCorner(b)) {
+                        a.bounceOffCorner();
+                        bounceWallWriter.write(String.format(Locale.US, "%d %.6f %.6f %.6f %s\n", getBoxId(a), simTime, a.vx, a.vy, 'C'));
+                    } else
+                        a.bounceOff(b);
+
                 } else if (a != null && b == null) {
-                    double EPS = 1e-10;
-                    if (isCorner(a)) {
-                        double cornerY = (aNearBottomCorner(a)) ? openingYMin : openingYMax;
-                        a.bounceOffPoint(BOX1_W, cornerY, EPS);
-                        bounceWallWriter.write(String.format(Locale.US,"%d %.6f %.6f %.6f %s\n", BOX1_ID, simTime, a.vx, a.vy, 'C'));
-                    } else {
                         a.bounceOffVerticalWall();
                         bounceWallWriter.write(String.format(Locale.US,"%d %.6f %.6f %.6f %s\n", getBoxId(a), simTime, a.vx, a.vy, 'V'));
-                    }
+
                 } else if (a == null && b != null) {
                     b.bounceOffHorizontalWall();
                     bounceWallWriter.write(String.format(Locale.US,"%d %.6f %.6f %.6f %s\n", getBoxId(b), simTime, b.vx, b.vy, 'H'));
                 }
 
                 predict(a);
-                predict(b);
+                if (b!=null && !isCorner(b)) predict(b);
             }
         }
 
@@ -177,8 +187,8 @@ public class Collisions {
         return (p.x < BOX1_W) ? BOX1_ID : BOX2_ID;
     }
     private boolean isCorner(Particle p) {
-        return Math.abs(p.x - BOX1_W) < 1e-6 &&
-                (Math.abs(p.y - openingYMin) < 1e-6 || Math.abs(p.y - openingYMax) < 1e-6);
+        return p.mass==0; //Math.abs(p.x - BOX1_W) < 1e-6 &&
+               // (Math.abs(p.y - openingYMin) < 1e-6 || Math.abs(p.y - openingYMax) < 1e-6);
     }
 
     private boolean aNearBottomCorner(Particle p) {

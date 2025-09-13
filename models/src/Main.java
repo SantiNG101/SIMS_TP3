@@ -7,11 +7,11 @@ public class Main {
     public static void main(String[] args) throws IOException {
         // --- Simulation Parameters ---
         int N = 250;                  // Número de partículas
-        double L_CHANNEL = 0.05;      // Altura del "canal" o de la caja derecha (variable)
+        double L_CHANNEL = 0.02;      // Altura del "canal" o de la caja derecha (variable)
         double RADIUS = 0.0015;       // Radio de la partícula
         double MASS = 1.0;            // Masa de la partícula
         double INITIAL_SPEED = 0.01;  // Magnitud de la velocidad inicial
-        double MAX_TIME = 1000.0;       // Tiempo máximo de simulación
+        double MAX_TIME = 100.0;       // Tiempo máximo de simulación
 
         // Dimensiones de las cajas (usadas para la inicialización)
         double BOX1_WIDTH = 0.09;
@@ -19,7 +19,7 @@ public class Main {
 
         // --- Crear Partículas ---
         List<Particle> particles = new ArrayList<>();
-        Random rand = new Random();
+        Random rand = new Random(2);
 
         for (int i = 0; i < N; i++) {
             double x, y;
@@ -49,7 +49,6 @@ public class Main {
 
         // --- Ejecutar Simulación ---
         Collisions system = new Collisions(particles, L_CHANNEL);
-        // Simular por 50 segundos, guardando el estado cada 0.1 segundos
         system.simulate(MAX_TIME,1);
     }
 }

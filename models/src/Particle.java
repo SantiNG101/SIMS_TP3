@@ -107,6 +107,14 @@ public class Particle {
         this.collisionCount++;
     }
 
+    public void bounceOffCorner() {
+        // reflejar vx y vy según la normal del corner
+        vx = -vx;
+        vy = -vy;
+        collisionCount++;
+    }
+
+
     public void bounceOffPoint(double px, double py, double EPS) {
         double dx = this.x - px;
         double dy = this.y - py;
