@@ -19,7 +19,7 @@ public class Main {
 
         // --- Crear Partículas ---
         List<Particle> particles = new ArrayList<>();
-        Random rand = new Random(2);
+        Random rand = new Random();
 
         for (int i = 0; i < N; i++) {
             double x, y;
