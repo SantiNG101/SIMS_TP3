@@ -1,15 +1,22 @@
 import numpy as np
 import os
 
-def load_base_path(L):
+def load_sim_base_path(L):
     script_dir = os.path.dirname(os.path.abspath(__file__))
     base_path = os.path.join(script_dir, "..", "outputs", f"sim_L_{L}")
     base_path = os.path.abspath(base_path) 
     return base_path
 
 
+def load_outputs_base_path():
+    script_dir = os.path.dirname(os.path.abspath(__file__))
+    base_path = os.path.join(script_dir, "..", "outputs")
+    base_path = os.path.abspath(base_path)
+    return base_path
+
+
 def load_params(L):
-    base_path = load_base_path(L)
+    base_path = load_sim_base_path(L)
     file_path = os.path.join(base_path, "params.txt")
 
     with open(file_path, "r") as f:
@@ -26,7 +33,7 @@ def load_params(L):
 
 
 def load_collisions(L):
-    base_path = load_base_path(L)
+    base_path = load_sim_base_path(L)
     file_path = os.path.join(base_path, "bounce_wall_output.txt")
 
     dtype = {
@@ -45,7 +52,7 @@ def load_collisions(L):
 
 
 def load_stationary_time(L):
-    base_path = load_base_path(L)
+    base_path = load_sim_base_path(L)
     path = os.path.join(base_path, "stationary.txt")
 
     with open(path, "r") as f:
