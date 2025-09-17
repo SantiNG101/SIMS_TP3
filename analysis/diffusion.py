@@ -4,10 +4,10 @@ from scipy.stats import linregress
 import os
 from utils import load_sim_base_path, load_outputs_base_path
 
-def load_output_file(L, base_path):
+def load_output_file(L, base_path, t_stationary=0):
     """
     Carga el archivo output.txt para un L dado.
-    Devuelve tiempos, posiciones (x,y) de todas las partículas.
+    Devuelve tiempos y posiciones (x,y) de todas las partículas, solo a partir de t_stationary.
     """
     file_path = os.path.join(base_path, "output.txt")
 
@@ -41,7 +41,15 @@ def load_output_file(L, base_path):
     if block:
         positions.append(np.array(block))
 
-    return np.array(times), positions
+    times = np.array(times)
+    positions = np.array(positions)
+
+    # --- Filtrar desde estado estacionario ---
+    mask = times >= t_stationary
+    times = times[mask] - t_stationary  # reiniciar tiempo desde t_stationary
+    positions = positions[mask]
+
+    return times, positions
 
 
 def compute_msd(times, positions, bin_size):
@@ -77,17 +85,11 @@ def compute_msd(times, positions, bin_size):
     return np.array(binned_times), np.array(binned_msd), np.array(binned_std)
 
 
-def fit_diffusion_coefficient(times, msd, t_min=None, t_max=None):
+def fit_diffusion_coefficient(times, msd):
     """
     Ajuste lineal del MSD(t) = 4 D t en 2D.
     """
-    mask = np.ones_like(times, dtype=bool)
-    if t_min is not None:
-        mask &= times >= t_min
-    if t_max is not None:
-        mask &= times <= t_max
-
-    slope, intercept, r_value, _, _ = linregress(times[mask], msd[mask])
+    slope, intercept, r_value, _, _ = linregress(times, msd)
     D = slope / 4  # en 2D
 
     return D, slope, intercept, r_value**2
@@ -96,29 +98,26 @@ def fit_diffusion_coefficient(times, msd, t_min=None, t_max=None):
 def plot_diffusion(t_stationary, fontsize=12, L=0.09):
 
     base_path = load_sim_base_path(L)
-    times, positions = load_output_file(L, base_path)
+    times, positions = load_output_file(L, base_path, t_stationary=t_stationary)
 
     # MSD agrupado cada 10000 datos
     bin_size = 10000
     times_b, msd_b, msd_std = compute_msd(times, positions, bin_size)
 
-    # Ajuste lineal desde el estacionario
-    mask = times_b >= t_stationary
-    D, slope, intercept, r2 = fit_diffusion_coefficient(times_b[mask], msd_b[mask])
+    # Ajuste lineal
+    D, slope, intercept, r2 = fit_diffusion_coefficient(times_b, msd_b)
 
-    times_fit = times_b[mask]
+    times_fit = times_b
     msd_fit = slope*times_fit + intercept
 
     # Graficar con barra de error
     plt.figure(figsize=(8,6))
-    plt.errorbar(times_b, msd_b, yerr=msd_std, fmt='o-', capsize=5, label=f"Datos (bin={bin_size})")
-    plt.plot(times_fit, msd_fit, '-', label=f"Ajuste lineal (D={D:.3e})")
+    plt.errorbar(times_b, msd_b, yerr=msd_std, fmt='o-', capsize=5, label=f"Datos")
+    plt.plot(times_fit, msd_fit, '-', label=f"Ajuste lineal")
 
-    # Línea vertical indicando comienzo del estado estacionario
-    plt.axvline(t_stationary, color='black', linestyle='--', label=f"Comienzo estado estacionario")
-
-    plt.xlabel("Tiempo (s)", fontsize=fontsize)
-    plt.ylabel("<z²> (m²)", fontsize=fontsize)
+    plt.title(f"Coeficiente de difusión D = {D:.5e} m²/s\n")
+    plt.xlabel("Tiempo desde estado estacionario (s)", fontsize=fontsize)
+    plt.ylabel("MSD (m²)", fontsize=fontsize)
     plt.xticks(fontsize=fontsize)
     plt.yticks(fontsize=fontsize)
     plt.legend(fontsize=fontsize)
@@ -129,10 +128,12 @@ def plot_diffusion(t_stationary, fontsize=12, L=0.09):
     plt.savefig(save_path, dpi=300)
     print(f"Gráfico guardado en: {save_path}")
 
+    print(f"Coeficiente de difusión D = {D:.5e} m²/s")
+
 
 if __name__ == "__main__":
 
     t_init_stationary = 200
-    fontsize = 12
+    fontsize = 14
 
     plot_diffusion(t_init_stationary, fontsize)
